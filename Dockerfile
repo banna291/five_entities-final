@@ -17,13 +17,19 @@ RUN apt-get update && apt-get install -y \
 # Install PHP extensions
 RUN docker-php-ext-install pdo pdo_mysql mbstring zip exif pcntl
 
+# Install Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
 # Set working directory
 WORKDIR /var/www/html
 
 # Copy project files
-COPY . /var/www/html
+COPY . .
 
-# Set permissions
+# Install Laravel dependencies
+RUN composer install --no-dev --optimize-autoloader
+
+# Permissions
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
 
